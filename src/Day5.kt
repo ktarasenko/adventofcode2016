@@ -14,41 +14,13 @@ object Day5 {
 
 
 
-    private val DIGITS_LOWER = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
-
-
-    private fun countMd5(input: String): String {
-        return String(hex(getDigest().digest(input.toByteArray())))
-    }
-
-    fun hex(data: ByteArray): CharArray {
-        val l = data.size
-        val out = CharArray(l shl 1)
-        var i = 0
-        var j = 0
-        while (i < l) {
-            out[j++] = DIGITS_LOWER[(240 and data[i].toInt()).ushr(4)]
-            out[j++] = DIGITS_LOWER[15 and data[i].toInt()]
-            i++
-        }
-        return out
-    }
-
-    fun getDigest(): MessageDigest {
-        try {
-            return MessageDigest.getInstance("MD5")
-        } catch (e: NoSuchAlgorithmException) {
-            throw IllegalArgumentException(e)
-        }
-    }
-
     class Md5Generator1(val code: String) : Sequence<Char> {
         override fun iterator(): Iterator<Char> = object : Iterator<Char> {
             var currentInt = 0
 
             override fun next(): Char {
                 while (true) {
-                    val md5 = countMd5(code + currentInt)
+                    val md5 = (code + currentInt).md5()
                     currentInt++
                     if (md5.startsWith("00000")) {
                         return md5.elementAt(5)
@@ -71,7 +43,7 @@ object Day5 {
 
         fun calculateCode(): String {
             while (itemsToGo > 0) {
-                val md5 = countMd5(code + currentInt)
+                val md5 = (code + currentInt).md5()
                 currentInt++
                 if (md5.startsWith("00000")) {
                     val pos =  (md5.elementAt(5)).toString().toIntOrNull()
